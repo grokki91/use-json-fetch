@@ -1,35 +1,27 @@
 import { useEffect, useState } from "react"
 
-export default function useJsonFetch(url, opt = null) {
-    const [data, setData] = useState(`${url}data`)
-    const [loading, setLoading] = useState(`${url}loading`)
-    const [error, setError] = useState(`${url}error`)
+export default function useJsonFetch(url, opt = {}) {
+    const [data, setData] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
-        if (data) {
-            getFetchData()
-        } 
-
-        if (loading) {
-            getFetchLoading()
-        } 
-        
-        if (error) {
-            getFetchError()
-        }
+        fetchJson()
     }, [])
 
-    const getFetchData = () => {
-        fetch(data).then(response => response.json()).then(response => setData(response))
-    }
-
-    const getFetchLoading = () => {
-        fetch(loading).then(response => response.json()).then(response => setLoading(response))
-    }
-
-    const getFetchError = () => {
-        fetch(error).then(response => response.json()).then(response => setError(response))
-    }
+    const fetchJson = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch(url, opt);
+          const json = await response.json();
+          setData(json);
+          setError(null);
+        } catch (e) {
+          setError(e.message);
+        } finally {
+          setLoading(false);
+        }
+      }
 
     return [data, loading, error]
 }
